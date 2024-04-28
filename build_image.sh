@@ -3,7 +3,7 @@ set -euo pipefail
 
 GTK=${GTK:-"main"}
 ADW=${ADW:-"main"}
-BASE=${BASE:-"gtk4-cross-base-$GTK-$ADW"}
+BASE=${BASE:-"gtk4-cross-base-hub-$GTK-$ADW"}
 
 if [[ $1 == "base" ]]; then
     echo "Building base image"
@@ -22,12 +22,13 @@ TAG=${TAG:-"$IMAGE-$GTK-$ADW"}
 mkdir -p "tmp/$IMAGE"
 cp -rL "$IMAGE" "tmp/"
 # Replace the remote image with  a local base.
-sed -i "s/FROM mglolenstine\/gtk4-cross:%GTKTAG%/FROM $BASE/g" "tmp/$IMAGE/Dockerfile"
+sed -i "s/FROM miguelbaldi\/gtk4-cross:%GTKTAG%/FROM $BASE/g" "tmp/$IMAGE/Dockerfile"
 # Replace GTK and Adwaita versions.
 sed -i "s/%GTKTAG%/$GTK/g" "tmp/$IMAGE/Dockerfile" && sed -i "s/%ADWTAG%/$ADW/g" "tmp/$IMAGE/Dockerfile"
 
 cd "tmp/$IMAGE" || exit
+echo "Building with tag name $TAG"
 # Start the image build.
 docker build . -t "$TAG"
 # Clean up the tmp directory.
-rm -rf "tmp/$IMAGE"
+#rm -rf "tmp/$IMAGE"

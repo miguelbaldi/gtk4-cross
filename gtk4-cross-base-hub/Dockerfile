@@ -20,7 +20,7 @@ RUN . ~/.cargo/env && cargo install --git https://github.com/MGlolenstine/peldd_
 FROM fedora:40
 COPY --from=0 /root/pe-util/build/peldd /usr/bin/peldd
 COPY --from=1 /root/.cargo/bin/peldd_dependency_scanner /usr/bin/pds
-RUN dnf install git mingw64-binutils mingw64-gcc meson mingw64-pango mingw64-gdk-pixbuf mingw64-libepoxy mingw64-winpthreads-static glib2-devel gobject-introspection-devel mingw64-gstreamer1-plugins-bad-free vala wine cmake gcc zip boost boost-system dos2unix sassc mingw64-librsvg2 intltool itstool gtk-update-icon-cache adwaita-icon-theme mingw64-adwaita-icon-theme mingw64-gettext mingw64-libyaml mingw64-xz mingw64-xz-libs mingw64-zstd gperf -y && dnf clean all -y
+RUN dnf install git glslc mingw64-vulkan-headers mingw64-vulkan-tools mingw64-vulkan-loader mingw64-openssl-static mingw64-gcc-c++ zstd cyrus-sasl-devel perl mingw64-binutils mingw64-gcc meson mingw64-pango mingw64-gdk-pixbuf mingw64-libepoxy mingw64-winpthreads-static glib2-devel gobject-introspection-devel mingw64-gstreamer1-plugins-bad-free vala wine cmake gcc zip boost boost-system dos2unix sassc mingw64-librsvg2 intltool itstool gtk-update-icon-cache adwaita-icon-theme mingw64-adwaita-icon-theme mingw64-gettext mingw64-libyaml mingw64-xz mingw64-xz-libs mingw64-zstd gperf -y && dnf clean all -y
 
 # Clone the gtk4 repository (Move after the mingw setup for efficiency later)
 WORKDIR /tmp
@@ -58,6 +58,32 @@ RUN if [[ -e /tmp/gtk/gdk/loaders/gdkjpeg.c ]] ; then echo -e "#include <stdlib.
 # Enable Iphlpapi (on windows, they're case-insensitive, on linux they're not.)
 RUN cp /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libiphlpapi.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libIphlpapi.a
 
+# Hacks for libadwaita
+WORKDIR /tmp
+RUN dnf install pacman -y
+RUN rm -fv /etc/pacman.conf
+RUN rm -fv /etc/pacman.d/mirrorlist
+RUN git clone --depth 1 https://github.com/msys2/MSYS2-packages.git
+
+RUN perl -i -pe 's/^SigLevel[\s]*=[\s]*Required/#SigLevel = Required/' MSYS2-packages/pacman/pacman.conf
+RUN perl -i -pe 's/^#SigLevel[\s]*=[\s]*Never/SigLevel = Never/' MSYS2-packages/pacman/pacman.conf
+
+RUN cp MSYS2-packages/pacman/pacman.conf /etc/
+RUN cp MSYS2-packages/pacman-mirrors/mirrorlist.msys /etc/pacman.d/
+RUN cp MSYS2-packages/pacman-mirrors/mirrorlist.mingw /etc/pacman.d/
+
+RUN pacman -Sy --noconfirm mingw-w64-x86_64-appstream
+
+#RUN cp -rfv /mingw64/** /usr/x86_64-w64-mingw32/sys-root/mingw/
+RUN cp -rfv /mingw64/lib/pkgconfig/appstream.pc /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/
+RUN perl -i -pe 's/mingw64/usr\/x86_64-w64-mingw32\/sys-root\/mingw/' /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/appstream.pc
+RUN cp -rfv /mingw64/share/appstream /usr/x86_64-w64-mingw32/sys-root/mingw/share/
+RUN cp -rfv /mingw64/share/metainfo/org.freedesktop.appstream.cli.metainfo.xml /usr/x86_64-w64-mingw32/sys-root/mingw/share/metainfo/
+RUN cp -rfv /mingw64/include/appstream /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+RUN cp -rfv /mingw64/bin/appstreamcli.exe /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN cp -rfv /mingw64/lib/libappstream.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN cp -rfv /mingw64/bin/libappstream-5.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+
 # Add compiler paths
 ENV PKG_CONFIG_ALLOW_CROSS=1
 ENV PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/:/usr/x86_64-w64-mingw32/lib/pkgconfig/
@@ -74,7 +100,7 @@ RUN wine $MINGW_PREFIX/bin/gdk-pixbuf-query-loaders.exe --update-cache
 WORKDIR /tmp/gtk
 RUN x86_64-meson build -Dintrospection=disabled --wrap-mode=default
 WORKDIR /tmp/gtk/build
-RUN meson configure -Db_lto=false -Dc_link_args="['-lssp']" -Dc_args=-DG_ENABLE_DEBUG -Dtracker=disabled
+RUN meson configure -Db_lto=false -Dc_link_args="['-lssp']" -Dc_args=-DG_ENABLE_DEBUG -Dtracker=disabled -Dvulkan=disabled
 RUN ninja all && ninja install
 
 # Build and install libadwaita
