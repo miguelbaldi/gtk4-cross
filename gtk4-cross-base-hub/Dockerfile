@@ -84,6 +84,12 @@ RUN cp -rfv /mingw64/bin/appstreamcli.exe /usr/x86_64-w64-mingw32/sys-root/mingw
 RUN cp -rfv /mingw64/lib/libappstream.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
 RUN cp -rfv /mingw64/bin/libappstream-5.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
 
+RUN cp -rfv /mingw64/lib/pkgconfig/xmlb.pc /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/
+RUN perl -i -pe 's/mingw64/usr\/x86_64-w64-mingw32\/sys-root\/mingw/' /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/xmlb.pc
+RUN cp -rfv /mingw64/include/libxmlb-2/ /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+RUN cp -rfv /mingw64/lib/libxmlb.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN cp -rfv /mingw64/bin/libxmlb-2.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+
 # Add compiler paths
 ENV PKG_CONFIG_ALLOW_CROSS=1
 ENV PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/:/usr/x86_64-w64-mingw32/lib/pkgconfig/
