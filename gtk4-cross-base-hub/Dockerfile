@@ -74,7 +74,7 @@ RUN cp MSYS2-packages/pacman-mirrors/mirrorlist.mingw /etc/pacman.d/
 
 RUN pacman -Sy --noconfirm mingw-w64-x86_64-appstream
 
-#RUN cp -rfv /mingw64/** /usr/x86_64-w64-mingw32/sys-root/mingw/
+# Installing appstream/xmlb
 RUN cp -rfv /mingw64/lib/pkgconfig/appstream.pc /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/
 RUN perl -i -pe 's/mingw64/usr\/x86_64-w64-mingw32\/sys-root\/mingw/' /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/appstream.pc
 RUN cp -rfv /mingw64/share/appstream /usr/x86_64-w64-mingw32/sys-root/mingw/share/
@@ -89,6 +89,39 @@ RUN perl -i -pe 's/mingw64/usr\/x86_64-w64-mingw32\/sys-root\/mingw/' /usr/x86_6
 RUN cp -rfv /mingw64/include/libxmlb-2/ /usr/x86_64-w64-mingw32/sys-root/mingw/include/
 RUN cp -rfv /mingw64/lib/libxmlb.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
 RUN cp -rfv /mingw64/bin/libxmlb-2.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+
+# Installing gettext
+
+RUN /bin/cp -fv /mingw64/bin/envsubst.exe /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/gettext.exe /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/gettext.sh /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/libasprintf-0.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/libintl-8.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/ngettext.exe /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+
+RUN /bin/cp -fv /mingw64/include/autosprintf.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+RUN /bin/cp -fv /mingw64/include/libintl.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+
+RUN /bin/cp -fv /mingw64/lib/libasprintf.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libasprintf.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libintl.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libintl.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+
+# Installing iconv
+
+RUN /bin/cp -fv /mingw64/bin/libcharset-1.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+RUN /bin/cp -fv /mingw64/bin/libiconv-2.dll /usr/x86_64-w64-mingw32/sys-root/mingw/bin/
+
+RUN /bin/cp -fv /mingw64/include/iconv.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+RUN /bin/cp -fv /mingw64/include/libcharset.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+RUN /bin/cp -fv /mingw64/include/localcharset.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
+
+RUN /bin/cp -fv /mingw64/lib/libcharset.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libcharset.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libiconv.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+RUN /bin/cp -fv /mingw64/lib/libiconv.dll.a /usr/x86_64-w64-mingw32/sys-root/mingw/lib/
+
+RUN /bin/cp -rfv /mingw64/share/locale/ /usr/x86_64-w64-mingw32/sys-root/mingw/share/
 
 # Add compiler paths
 ENV PKG_CONFIG_ALLOW_CROSS=1
